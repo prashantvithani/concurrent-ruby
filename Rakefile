@@ -17,30 +17,7 @@ ext_gemspec  = Gem::Specification.load File.join(__dir__, 'concurrent-ruby-ext.g
 edge_gemspec = Gem::Specification.load File.join(__dir__, 'concurrent-ruby-edge.gemspec')
 
 require 'rake/javaextensiontask'
-
-JRUBY_JAR_PATH = '/usr/local/opt/rbenv/versions/jruby-9.1.17.0/lib/jruby.jar'
-
-class ConcurrentRubyJavaExtensionTask < Rake::JavaExtensionTask
-  def java_classpath_arg(*args)
-    jruby_cpath = nil
-    if RUBY_PLATFORM =~ /java/
-      begin
-        cpath       = Java::java.lang.System.getProperty('java.class.path').split(File::PATH_SEPARATOR)
-        cpath       += Java::java.lang.System.getProperty('sun.boot.class.path').split(File::PATH_SEPARATOR)
-        jruby_cpath = cpath.compact.join(File::PATH_SEPARATOR)
-      rescue => e
-      end
-    end
-    unless jruby_cpath
-      jruby_cpath = JRUBY_JAR_PATH
-      raise "#{jruby_cpath} does not exist" unless File.exist? jruby_cpath
-    end
-    jruby_cpath += File::PATH_SEPARATOR + args.join(File::PATH_SEPARATOR) unless args.empty?
-    jruby_cpath ? "-cp \"#{jruby_cpath}\"" : ""
-  end
-end
-
-ConcurrentRubyJavaExtensionTask.new('concurrent_ruby', core_gemspec) do |ext|
+Rake::JavaExtensionTask.new('concurrent_ruby', core_gemspec) do |ext|
   ext.ext_dir = 'ext/concurrent-ruby'
   ext.lib_dir = 'lib/concurrent'
 end
